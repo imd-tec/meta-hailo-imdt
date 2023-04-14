@@ -3,10 +3,10 @@ DESCRIPTION = "Tappas post processes \
                and copies it to usr/lib/hailo-post-processes"
 
 LICENSE = "LGPLv2.1"
-LIC_FILES_CHKSUM += "file://../../../LICENSE;md5=4fbd65380cdd255951079008b364516c"
+LIC_FILES_CHKSUM += "file://../../LICENSE;md5=4fbd65380cdd255951079008b364516c"
 
 SRC_URI = "git://git@github.com/hailo-ai/tappas.git;protocol=https;branch=master"
-SRCREV = "3d5a2abf3fb6a0425c6d253a6a1608d68b65abed"
+SRCREV = "3c2b49d62aa928529574736dc11377eb32577a50"
 
 inherit hailotools-base
 
@@ -16,6 +16,7 @@ ROOTFS_POST_PROCESSES_DIR = "${libdir}/hailo-post-processes"
 
 # add dependencies
 DEPENDS += "cxxopts rapidjson"
+RDEPENDS_${PN} += " libgsthailotools"
 
 
 # meson configuration
@@ -24,6 +25,12 @@ EXTRA_OEMESON += " \
         -Dlibcxxopts='${STAGING_INCDIR}/cxxopts' \
         -Dlibrapidjson='${STAGING_INCDIR}/rapidjson' \
         "
+
+do_install_append() {
+    # Meson installs shared objects in apps target,
+    # we remove it from the rootfs to prevent duplication with libgsthailotools
+    rm -rf ${D}/usr/lib/libhailo_tracker*
+}
 
 FILES_${PN} += "${libdir}/* ${ROOTFS_POST_PROCESSES_DIR}/* ${ROOTFS_POST_PROCESSES_DIR}/so.* \
                 ${ROOTFS_POST_PROCESSES_DIR}/cropping_algorithms/* ${ROOTFS_POST_PROCESSES_DIR}/post_processes_data/* "
